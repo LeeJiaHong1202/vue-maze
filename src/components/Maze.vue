@@ -82,6 +82,10 @@ export default {
     strategy: {
       default: "cluster",
       type: String
+    },
+    finishWords: {
+      type: Array,
+      default: () => ["BooYah!", "Wow!", "I did it!", "Woohoo!"]
     }
   },
   computed: {
@@ -419,7 +423,7 @@ export default {
       );
       effectRenderer.clear(this.width, this.height);
       // TODO: data
-      const texts = ["BooYah!", "Wow!", "I did it!", "Woohoo!"];
+      const texts = this.finishWords;
       const text = texts[Math.floor(texts.length * Math.random())];
       effectRenderer.drawText(text, this.player.x, this.player.y);
     },
