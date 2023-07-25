@@ -39,6 +39,7 @@ export default {
   name: "maze",
   data() {
     return {
+      pathHistory: [],
       cache: null,
       dotPos: {
         offsetX: null,
@@ -86,6 +87,10 @@ export default {
     finishWords: {
       type: Array,
       default: () => ["BooYah!", "Wow!", "I did it!", "Woohoo!"]
+    },
+    historyMode: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -362,7 +367,38 @@ export default {
         this.isFinished = true;
         this.$emit("finish");
       }
+      const newPosition = { x: toX, y: toY };
+      const isAlreadyVisited = this.pathHistory.some(
+        position => position.x === newPosition.x && position.y === newPosition.y
+      );
+
+      // Add the current position to the path history if it's not already visited
+      if (!isAlreadyVisited) {
+        this.pathHistory.push(newPosition);
+      }
     },
+    renderPathHistory(player) {
+      if (!this.historyMode) {
+        return
+      }
+      const renderer = new Renderer(
+        this.$refs.playerCanvas.getContext("2d"),
+        this.cellWidth,
+        this.cellHeight,
+        this.marginLeft,
+        this.marginTop
+      );
+      renderer.clear(this.width, this.height);
+      renderer.setColor("#ff1900", "#222");
+
+      // Render each position in the path history
+      for (const position of this.pathHistory) {
+        if ((player.x != position.x) || (player.y != position.y)) {
+        renderer.drawCircle(position.x, position.y);
+        }
+      }
+    },
+
     resetMaze() {
       const lx = this.lx;
       const ly = this.ly;
@@ -372,6 +408,7 @@ export default {
         const maze = new Maze(lx, ly, seed);
         Vue.set(this, "maze", maze);
         Vue.set(this, "player", { x: 0, y: 0 });
+        Vue.set(this, "pathHistory",[]);
         this.isStarted = false;
         this.isFinished = false;
       }
@@ -388,6 +425,7 @@ export default {
       playerRenderer.clear(this.width, this.height);
       playerRenderer.ctx = this.$refs.playerCanvas.getContext("2d");
       playerRenderer.setColor("#FF9800", "#222");
+      this.renderPathHistory(player);
       if (this.image != null) {
         playerRenderer.drawImage(player.x, player.y, this.image);
       } else {

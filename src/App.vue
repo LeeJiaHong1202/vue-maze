@@ -18,6 +18,7 @@
         @finish="onFinish"
         @init="onInit"
         :style="mazeStyle"
+        :historyMode="false"
       ></maze>
     </div>
     `,
